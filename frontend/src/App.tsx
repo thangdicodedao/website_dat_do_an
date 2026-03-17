@@ -1,0 +1,82 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { store } from './store';
+import { ToastProvider } from './components/common';
+import { Layout } from './components/layout';
+import {
+  HomePage,
+  ProductsPage,
+  ProductDetailPage,
+  CartPage,
+  CheckoutPage,
+  OrderConfirmationPage,
+  AuthPages,
+  VerifyEmailPage,
+  ProfilePage,
+  QRPage,
+  AdminDashboard,
+  AdminProducts,
+  AdminOrders,
+  AdminUsers,
+} from './pages';
+import { useAppDispatch } from './hooks';
+import { checkAuth } from './store/slices/authSlice';
+import { useEffect } from 'react';
+
+function AppContent() {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
+
+  return (
+    <Routes>
+      {/* User Routes */}
+      <Route element={<Layout />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/products" element={<ProductsPage />} />
+        <Route path="/product/:id" element={<ProductDetailPage />} />
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/order-confirmation/:orderId" element={<OrderConfirmationPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/orders" element={<ProfilePage />} />
+        <Route path="/order/:orderId" element={<OrderConfirmationPage />} />
+
+        {/* Auth Routes - with Layout */}
+        <Route path="/login" element={<AuthPages />} />
+        <Route path="/register" element={<AuthPages />} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/forgot-password" element={<AuthPages />} />
+      </Route>
+
+      {/* QR Ordering */}
+      <Route path="/table/:tableId" element={<QRPage />} />
+      <Route path="/qr" element={<QRPage />} />
+
+      {/* Admin Routes */}
+      <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/admin/products" element={<AdminProducts />} />
+      <Route path="/admin/orders" element={<AdminOrders />} />
+      <Route path="/admin/users" element={<AdminUsers />} />
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
+function App() {
+  return (
+    <Provider store={store}>
+      <ToastProvider>
+        <BrowserRouter>
+          <AppContent />
+        </BrowserRouter>
+      </ToastProvider>
+    </Provider>
+  );
+}
+
+export default App;

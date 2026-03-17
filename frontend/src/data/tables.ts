@@ -1,0 +1,68 @@
+import { Table } from '../types';
+
+export const tables: Table[] = [
+  {
+    id: 'table-001',
+    number: '01',
+    qrCode: 'TABLE-001',
+    capacity: 4,
+    status: 'available',
+    location: 'Tầng 1',
+  },
+  {
+    id: 'table-002',
+    number: '02',
+    qrCode: 'TABLE-002',
+    capacity: 4,
+    status: 'occupied',
+    location: 'Tầng 1',
+  },
+  {
+    id: 'table-003',
+    number: '03',
+    qrCode: 'TABLE-003',
+    capacity: 6,
+    status: 'available',
+    location: 'Tầng 1',
+  },
+  {
+    id: 'table-004',
+    number: '04',
+    qrCode: 'TABLE-004',
+    capacity: 6,
+    status: 'reserved',
+    location: 'Tầng 1',
+  },
+  {
+    id: 'table-005',
+    number: '05',
+    qrCode: 'TABLE-005',
+    capacity: 8,
+    status: 'available',
+    location: 'Tầng 2',
+  },
+  {
+    id: 'table-006',
+    number: '06',
+    qrCode: 'TABLE-006',
+    capacity: 8,
+    status: 'available',
+    location: 'Tầng 2',
+  },
+  {
+    id: 'table-007',
+    number: '07',
+    qrCode: 'TABLE-007',
+    capacity: 2,
+    status: 'available',
+    location: 'Tầng 2',
+  },
+  {
+    id: 'table-008',
+    number: '08',
+    qrCode: 'TABLE-008',
+    capacity: 2,
+    status: 'occupied',
+    location: 'Tầng 2',
+  },
+];

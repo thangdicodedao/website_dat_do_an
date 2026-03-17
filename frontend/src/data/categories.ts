@@ -1,0 +1,58 @@
+import { Category } from '../types';
+
+export const categories: Category[] = [
+  {
+    id: 'cat-001',
+    name: 'Món Chính',
+    slug: 'mon-chinh',
+    description: 'Các món chính hấp dẫn',
+    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400',
+    isActive: true,
+    sortOrder: 1,
+  },
+  {
+    id: 'cat-002',
+    name: 'Món Ăn Vặt',
+    slug: 'mon-an-vat',
+    description: 'Snacks và món ăn vặt ngon',
+    image: 'https://images.unsplash.com/photo-1599490659213-e2b9527bd087?w=400',
+    isActive: true,
+    sortOrder: 2,
+  },
+  {
+    id: 'cat-003',
+    name: 'Đồ Uống',
+    slug: 'do-uong',
+    description: 'Các loại đồ uống giải khát',
+    image: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400',
+    isActive: true,
+    sortOrder: 3,
+  },
+  {
+    id: 'cat-004',
+    name: 'Cơm & Phở',
+    slug: 'com-pho',
+    description: 'Cơm và phở truyền thống',
+    image: 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=400',
+    isActive: true,
+    sortOrder: 4,
+  },
+  {
+    id: 'cat-005',
+    name: 'Đồ Chay',
+    slug: 'do-chay',
+    description: 'Món ăn chay lành mạnh',
+    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400',
+    isActive: true,
+    sortOrder: 5,
+  },
+  {
+    id: 'cat-006',
+    name: 'Bánh & Tráng Miệng',
+    slug: 'banh-trang-mieng',
+    description: 'Bánh ngọt và tráng miệng',
+    image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=400',
+    isActive: true,
+    sortOrder: 6,
+  },
+];
