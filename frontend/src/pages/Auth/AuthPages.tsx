@@ -152,7 +152,7 @@ export default function AuthPages() {
               <div className="flex justify-end">
                 <Link
                   to="/forgot-password"
-                  className="text-sm text-orange-500 hover:text-orange-600"
+                  className="text-sm text-red-500 hover:text-red-600"
                 >
                   Quên mật khẩu?
                 </Link>
@@ -170,7 +170,7 @@ export default function AuthPages() {
             </span>{' '}
             <Link
               to={isLogin ? '/register' : '/login'}
-              className="text-orange-500 font-medium hover:text-orange-600"
+              className="text-red-500 font-medium hover:text-red-600"
             >
               {isLogin ? 'Đăng ký ngay' : 'Đăng nhập'}
             </Link>

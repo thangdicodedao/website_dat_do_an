@@ -25,8 +25,8 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-gray-50 py-4 md:py-8">
+      <div className="container mx-auto px-3 md:px-4">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Giỏ hàng</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -39,7 +39,7 @@ export default function CartPage() {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl p-6 shadow-sm sticky top-24">
+            <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm sticky top-20 md:top-24">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Tổng quan đơn hàng
               </h2>
@@ -61,7 +61,7 @@ export default function CartPage() {
                 )}
                 <div className="border-t pt-3 flex justify-between">
                   <span className="font-semibold text-gray-900">Tổng cộng</span>
-                  <span className="text-xl font-bold text-orange-600">
+                  <span className="text-xl font-bold text-red-600">
                     {formatPrice(cart?.total || 0)}
                   </span>
                 </div>
@@ -76,7 +76,7 @@ export default function CartPage() {
                   <input
                     type="text"
                     placeholder="Nhập mã..."
-                    className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500"
                   />
                   <Button variant="outline">Áp dụng</Button>
                 </div>
@@ -91,7 +91,7 @@ export default function CartPage() {
 
               <Link
                 to="/products"
-                className="block text-center mt-4 text-orange-500 hover:text-orange-600"
+                className="block text-center mt-4 text-red-500 hover:text-red-600"
               >
                 Tiếp tục mua sắm
               </Link>

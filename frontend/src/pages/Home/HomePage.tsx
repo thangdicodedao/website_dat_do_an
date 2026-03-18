@@ -1,18 +1,17 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Utensils, Truck, Star, Clock } from 'lucide-react';
-import { ProductCard, CategoryCard } from '../../components/features';
-import { PageLoader } from '../../components/common';
+import { ProductCard, CategoryCard, HeroSlider } from '../../components/features';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { fetchFeaturedProducts, fetchNewProducts } from '../../store/slices/productSlice';
 import { fetchCategories } from '../../store/slices/categorySlice';
 
 export default function HomePage() {
   const dispatch = useAppDispatch();
-  const { featuredProducts, products: newProducts, loading: productLoading } = useAppSelector(
+  const { featuredProducts, products: newProducts } = useAppSelector(
     (state) => state.products
   );
-  const { categories, loading: categoryLoading } = useAppSelector((state) => state.categories);
+  const { categories } = useAppSelector((state) => state.categories);
 
   useEffect(() => {
     dispatch(fetchFeaturedProducts());
@@ -43,75 +42,21 @@ export default function HomePage() {
     },
   ];
 
-  if (productLoading || categoryLoading) {
-    return <PageLoader />;
-  }
-
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative min-h-[600px] flex items-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-orange-700" />
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-20 left-10 w-64 h-64 bg-white rounded-full blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-yellow-300 rounded-full blur-3xl" />
-        </div>
-
-        <div className="container mx-auto px-4 relative z-10 py-20">
-          <div className="max-w-2xl">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-              Đồ ăn ngon
-              <br />
-              <span className="text-yellow-300">Giao hàng nhanh</span>
-            </h1>
-            <p className="text-lg text-white/90 mb-8">
-              Khám phá hàng trăm món ăn ngon từ các nhà hàng nổi tiếng.
-              Đặt món ngay hôm nay để nhận ưu đãi hấp dẫn!
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <Link
-                to="/products"
-                className="px-8 py-4 bg-white text-orange-600 rounded-xl font-semibold hover:bg-orange-50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
-              >
-                Đặt ngay
-              </Link>
-              <Link
-                to="/products?category=mon-chinh"
-                className="px-8 py-4 bg-white/20 text-white rounded-xl font-semibold backdrop-blur-sm hover:bg-white/30 transition-all duration-300"
-              >
-                Xem menu
-              </Link>
-            </div>
-
-            {/* Stats */}
-            <div className="flex flex-wrap gap-8 mt-12 pt-8 border-t border-white/20">
-              <div>
-                <div className="text-3xl font-bold text-white">500+</div>
-                <div className="text-white/70">Món ăn</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-white">50+</div>
-                <div className="text-white/70">Nhà hàng</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-white">10K+</div>
-                <div className="text-white/70">Khách hàng</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero Slider */}
+      <HeroSlider />
 
       {/* Features */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
+      <section className="py-10 md:py-16 bg-white">
+        <div className="container mx-auto px-3 md:px-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="p-6 bg-gray-50 rounded-2xl text-center hover:bg-orange-50 transition-colors"
+                className="p-6 bg-gray-50 rounded-2xl text-center hover:bg-red-50 transition-colors"
               >
-                <div className="w-16 h-16 mx-auto mb-4 bg-orange-100 rounded-2xl flex items-center justify-center text-orange-500">
+                <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-2xl flex items-center justify-center text-red-500">
                   {feature.icon}
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-2">{feature.title}</h3>
@@ -123,8 +68,8 @@ export default function HomePage() {
       </section>
 
       {/* Categories */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
+      <section className="py-10 md:py-16 bg-gray-50">
+        <div className="container mx-auto px-3 md:px-4">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
@@ -136,7 +81,7 @@ export default function HomePage() {
             </div>
             <Link
               to="/products"
-              className="hidden sm:flex items-center gap-2 text-orange-500 font-medium hover:text-orange-600 transition-colors"
+              className="hidden sm:flex items-center gap-2 text-red-500 font-medium hover:text-red-600 transition-colors"
             >
               Xem tất cả
               <ArrowRight className="w-5 h-5" />
@@ -152,8 +97,8 @@ export default function HomePage() {
       </section>
 
       {/* Featured Products */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
+      <section className="py-10 md:py-16 bg-white">
+        <div className="container mx-auto px-3 md:px-4">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
@@ -165,7 +110,7 @@ export default function HomePage() {
             </div>
             <Link
               to="/products?sortBy=rating"
-              className="hidden sm:flex items-center gap-2 text-orange-500 font-medium hover:text-orange-600 transition-colors"
+              className="hidden sm:flex items-center gap-2 text-red-500 font-medium hover:text-red-600 transition-colors"
             >
               Xem tất cả
               <ArrowRight className="w-5 h-5" />
@@ -181,8 +126,8 @@ export default function HomePage() {
       </section>
 
       {/* New Products */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
+      <section className="py-10 md:py-16 bg-gray-50">
+        <div className="container mx-auto px-3 md:px-4">
           <div className="flex items-center justify-between mb-8">
             <div>
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
@@ -194,7 +139,7 @@ export default function HomePage() {
             </div>
             <Link
               to="/products?isNew=true"
-              className="hidden sm:flex items-center gap-2 text-orange-500 font-medium hover:text-orange-600 transition-colors"
+              className="hidden sm:flex items-center gap-2 text-red-500 font-medium hover:text-red-600 transition-colors"
             >
               Xem tất cả
               <ArrowRight className="w-5 h-5" />
@@ -210,7 +155,7 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-orange-500 to-orange-600">
+      <section className="py-12 md:py-20 bg-linear-to-r from-red-500 to-red-600">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Đặt món ngay hôm nay!
@@ -221,7 +166,7 @@ export default function HomePage() {
           </p>
           <Link
             to="/products"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-white text-orange-600 rounded-xl font-semibold hover:bg-orange-50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-white text-red-600 rounded-xl font-semibold hover:bg-red-50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
           >
             Khám phá menu
             <ArrowRight className="w-5 h-5" />

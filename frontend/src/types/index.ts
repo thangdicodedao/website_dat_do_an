@@ -9,6 +9,7 @@ export interface User {
   isVerified: boolean;
   createdAt: string;
   address?: string;
+  password?: string;
 }
 
 export interface AuthState {

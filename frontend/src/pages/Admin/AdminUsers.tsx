@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Package, Menu, Search, User as UserIcon } from 'lucide-react';
-import { PageLoader } from '../../components/common';
+import { ProfileSkeleton } from '../../components/common';
 import { userAPI } from '../../services';
 import { User } from '../../types';
 import { formatDate } from '../../utils';
@@ -39,20 +39,20 @@ export default function AdminUsers() {
     { label: 'Người dùng', href: '/admin/users', icon: <Package className="w-5 h-5" /> },
   ];
 
-  if (loading) return <PageLoader />;
+  if (loading) return <ProfileSkeleton />;
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="p-6 border-b">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center"><span className="text-white font-bold">C</span></div>
+            <div className="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center"><span className="text-white font-bold">C</span></div>
             <span className="font-bold text-xl">Admin</span>
           </Link>
         </div>
         <nav className="p-4 space-y-2">
           {menuItems.map((item) => (
-            <Link key={item.href} to={item.href} className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${item.href === '/admin/users' ? 'bg-orange-50 text-orange-600' : 'text-gray-600 hover:bg-orange-50'}`}>
+            <Link key={item.href} to={item.href} className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${item.href === '/admin/users' ? 'bg-red-50 text-red-600' : 'text-gray-600 hover:bg-red-50'}`}>
               {item.icon}
               {item.label}
             </Link>
@@ -67,7 +67,7 @@ export default function AdminUsers() {
           <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 hover:bg-gray-100 rounded-xl">
             <Menu className="w-6 h-6" />
           </button>
-          <Link to="/" className="text-orange-500 hover:text-orange-600 font-medium">Về trang chủ</Link>
+          <Link to="/" className="text-red-500 hover:text-red-600 font-medium">Về trang chủ</Link>
         </header>
 
         <div className="p-6">
@@ -82,51 +82,51 @@ export default function AdminUsers() {
                   placeholder="Tìm người dùng..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500"
                 />
               </div>
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
+              <table className="w-full min-w-[600px]">
+                <thead className="bg-gray-50 sticky top-0 z-10">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Người dùng</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Số điện thoại</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vai trò</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Xác thực</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ngày tạo</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">Người dùng</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">Email</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">Số điện thoại</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">Vai trò</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">Xác thực</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">Ngày tạo</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {filteredUsers.map((user) => (
                     <tr key={user.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           {user.avatar ? (
-                            <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full object-cover" />
+                            <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full object-cover" />
                           ) : (
-                            <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                              <UserIcon className="w-5 h-5 text-orange-500" />
+                            <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                              <UserIcon className="w-4 h-4 text-red-500" />
                             </div>
                           )}
-                          <span className="font-medium text-gray-900">{user.name}</span>
+                          <span className="font-medium text-gray-900 text-sm">{user.name}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-gray-600">{user.email}</td>
-                      <td className="px-6 py-4 text-gray-600">{user.phone || '-'}</td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3 text-gray-600 text-sm">{user.email}</td>
+                      <td className="px-4 py-3 text-gray-600 text-sm">{user.phone || '-'}</td>
+                      <td className="px-4 py-3">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'}`}>
                           {user.role === 'admin' ? 'Admin' : 'User'}
                         </span>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-4 py-3">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.isVerified ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
                           {user.isVerified ? 'Đã xác thực' : 'Chưa xác thực'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-gray-500 text-sm">{formatDate(user.createdAt)}</td>
+                      <td className="px-4 py-3 text-gray-500 text-sm">{formatDate(user.createdAt)}</td>
                     </tr>
                   ))}
                 </tbody>

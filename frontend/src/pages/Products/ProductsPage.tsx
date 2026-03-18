@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, Grid, List, X } from 'lucide-react';
 import { ProductCard } from '../../components/features';
-import { LoadingSpinner, EmptyState } from '../../components/common';
+import { EmptyState, ProductListSkeleton } from '../../components/common';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { fetchProducts } from '../../store/slices/productSlice';
 import { fetchCategories } from '../../store/slices/categorySlice';
@@ -87,8 +87,8 @@ export default function ProductsPage() {
   const hasActiveFilters = search || selectedCategory || priceRange[0] > 0 || priceRange[1] < 500000;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-gray-50 py-4 md:py-8">
+      <div className="container mx-auto px-3 md:px-4">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Tất cả sản phẩm</h1>
@@ -107,7 +107,7 @@ export default function ProductsPage() {
                 {hasActiveFilters && (
                   <button
                     onClick={clearFilters}
-                    className="text-sm text-orange-500 hover:text-orange-600"
+                    className="text-sm text-red-500 hover:text-red-600"
                   >
                     Xóa tất cả
                   </button>
@@ -122,7 +122,7 @@ export default function ProductsPage() {
                     placeholder="Tìm kiếm..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500"
                   />
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 </div>
@@ -137,7 +137,7 @@ export default function ProductsPage() {
                     className={cn(
                       'w-full text-left px-3 py-2 rounded-lg transition-colors',
                       !selectedCategory
-                        ? 'bg-orange-50 text-orange-600'
+                        ? 'bg-red-50 text-red-600'
                         : 'text-gray-600 hover:bg-gray-50'
                     )}
                   >
@@ -150,7 +150,7 @@ export default function ProductsPage() {
                       className={cn(
                         'w-full text-left px-3 py-2 rounded-lg transition-colors',
                         selectedCategory === category.slug
-                          ? 'bg-orange-50 text-orange-600'
+                          ? 'bg-red-50 text-red-600'
                           : 'text-gray-600 hover:bg-gray-50'
                       )}
                     >
@@ -194,7 +194,7 @@ export default function ProductsPage() {
                     className={cn(
                       'w-full text-left px-3 py-2 rounded-lg text-sm transition-colors',
                       priceRange[0] === range.min && priceRange[1] === range.max
-                        ? 'bg-orange-50 text-orange-600'
+                        ? 'bg-red-50 text-red-600'
                         : 'text-gray-600 hover:bg-gray-50'
                     )}
                   >
@@ -230,7 +230,7 @@ export default function ProductsPage() {
                     setSortBy(sort);
                     setSortOrder(order as 'asc' | 'desc');
                   }}
-                  className="px-4 py-2.5 bg-white rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="px-4 py-2.5 bg-white rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-red-500"
                 >
                   <option value="createdAt-desc">Mới nhất</option>
                   <option value="price-asc">Giá tăng dần</option>
@@ -244,7 +244,7 @@ export default function ProductsPage() {
                     onClick={() => setViewMode('grid')}
                     className={cn(
                       'p-2 rounded-lg transition-colors',
-                      viewMode === 'grid' ? 'bg-orange-100 text-orange-600' : 'text-gray-400'
+                      viewMode === 'grid' ? 'bg-red-100 text-red-600' : 'text-gray-400'
                     )}
                   >
                     <Grid className="w-5 h-5" />
@@ -253,7 +253,7 @@ export default function ProductsPage() {
                     onClick={() => setViewMode('list')}
                     className={cn(
                       'p-2 rounded-lg transition-colors',
-                      viewMode === 'list' ? 'bg-orange-100 text-orange-600' : 'text-gray-400'
+                      viewMode === 'list' ? 'bg-red-100 text-red-600' : 'text-gray-400'
                     )}
                   >
                     <List className="w-5 h-5" />
@@ -266,7 +266,7 @@ export default function ProductsPage() {
             {hasActiveFilters && (
               <div className="flex flex-wrap gap-2 mb-6">
                 {search && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-orange-100 text-orange-700 rounded-lg text-sm">
+                  <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-sm">
                     Tìm: {search}
                     <button onClick={() => setSearch('')}>
                       <X className="w-4 h-4" />
@@ -274,7 +274,7 @@ export default function ProductsPage() {
                   </span>
                 )}
                 {selectedCategory && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-orange-100 text-orange-700 rounded-lg text-sm">
+                  <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-sm">
                     Danh mục: {categories.find(c => c.slug === selectedCategory)?.name}
                     <button onClick={() => handleCategoryChange('')}>
                       <X className="w-4 h-4" />
@@ -286,9 +286,7 @@ export default function ProductsPage() {
 
             {/* Products Grid */}
             {loading ? (
-              <div className="flex justify-center py-20">
-                <LoadingSpinner size="lg" />
-              </div>
+              <ProductListSkeleton count={8} />
             ) : products.length === 0 ? (
               <EmptyState
                 title="Không tìm thấy sản phẩm"

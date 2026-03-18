@@ -53,7 +53,7 @@ export default function CartItem({ item }: CartItemProps) {
         )}
 
         <div className="flex items-center justify-between mt-3">
-          <span className="font-semibold text-orange-600">
+          <span className="font-semibold text-red-600">
             {formatPrice(item.price * item.quantity)}
           </span>
           <QuantitySelector

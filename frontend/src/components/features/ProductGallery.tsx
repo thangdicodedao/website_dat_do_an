@@ -74,7 +74,7 @@ export default function ProductGallery({ images, video }: ProductGalleryProps) {
         {video && !showVideo && (
           <button
             onClick={handleVideoClick}
-            className="absolute bottom-4 right-4 p-3 bg-orange-500 text-white rounded-full shadow-lg hover:bg-orange-600 transition-colors"
+            className="absolute bottom-4 right-4 p-3 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition-colors"
           >
             <Play className="w-6 h-6" />
           </button>
@@ -84,7 +84,7 @@ export default function ProductGallery({ images, video }: ProductGalleryProps) {
         {showVideo && video && (
           <button
             onClick={toggleVideoPlay}
-            className="absolute bottom-4 right-4 p-3 bg-orange-500 text-white rounded-full shadow-lg hover:bg-orange-600 transition-colors"
+            className="absolute bottom-4 right-4 p-3 bg-red-500 text-white rounded-full shadow-lg hover:bg-red-600 transition-colors"
           >
             {isVideoPlaying ? (
               <Pause className="w-6 h-6" />
@@ -107,7 +107,7 @@ export default function ProductGallery({ images, video }: ProductGalleryProps) {
                 className={cn(
                   'w-2 h-2 rounded-full transition-all',
                   index === currentIndex
-                    ? 'bg-orange-500 w-6'
+                    ? 'bg-red-500 w-6'
                     : 'bg-white/70 hover:bg-white'
                 )}
               />
@@ -127,9 +127,9 @@ export default function ProductGallery({ images, video }: ProductGalleryProps) {
                 setShowVideo(false);
               }}
               className={cn(
-                'w-20 h-20 rounded-xl overflow-hidden shrink-0 border-2 transition-all',
+                'w-20 h-20 rounded-xl overflow-hidden shrink-0 border transition-all',
                 index === currentIndex
-                  ? 'border-orange-500'
+                  ? 'border-red-500'
                   : 'border-transparent hover:border-gray-300'
               )}
             >
@@ -144,11 +144,11 @@ export default function ProductGallery({ images, video }: ProductGalleryProps) {
             <button
               onClick={handleVideoClick}
               className={cn(
-                'w-20 h-20 rounded-xl overflow-hidden shrink-0 border-2 flex items-center justify-center bg-gray-100',
-                showVideo ? 'border-orange-500' : 'border-transparent hover:border-gray-300'
+                'w-20 h-20 rounded-xl overflow-hidden shrink-0 border flex items-center justify-center bg-gray-100',
+                showVideo ? 'border-red-500' : 'border-transparent hover:border-gray-300'
               )}
             >
-              <Play className="w-8 h-8 text-orange-500" />
+              <Play className="w-8 h-8 text-red-500" />
             </button>
           )}
         </div>

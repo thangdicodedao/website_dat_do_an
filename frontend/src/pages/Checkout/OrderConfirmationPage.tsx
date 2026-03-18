@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { CheckCircle, ArrowRight, Download } from 'lucide-react';
-import { Button, PageLoader } from '../../components/common';
+import { Button, OrderSkeleton } from '../../components/common';
 import { useAppSelector, useAppDispatch } from '../../hooks';
 import { fetchOrderById } from '../../store/slices/orderSlice';
 import { formatPrice, formatDate, getStatusColor, getStatusLabel } from '../../utils';
@@ -18,7 +18,7 @@ export default function OrderConfirmationPage() {
   }, [dispatch, orderId]);
 
   if (loading || !order) {
-    return <PageLoader />;
+    return <OrderSkeleton />;
   }
 
   return (
@@ -79,7 +79,7 @@ export default function OrderConfirmationPage() {
               )}
               <div className="flex justify-between text-lg font-bold pt-2 border-t">
                 <span>Tổng cộng</span>
-                <span className="text-orange-600">{formatPrice(order.total)}</span>
+                <span className="text-red-600">{formatPrice(order.total)}</span>
               </div>
             </div>
           </div>

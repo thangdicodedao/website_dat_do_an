@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './store';
-import { ToastProvider } from './components/common';
+import { ToastProvider, ScrollToTop, PageTransition } from './components/common';
 import { Layout } from './components/layout';
 import {
   HomePage,
@@ -12,8 +12,15 @@ import {
   OrderConfirmationPage,
   AuthPages,
   VerifyEmailPage,
+  ForgotPasswordPage,
+  VerifyForgotPasswordPage,
   ProfilePage,
   QRPage,
+  ContactPage,
+  FAQPage,
+  ShippingPolicyPage,
+  ReturnPolicyPage,
+  PrivacyPolicyPage,
   AdminDashboard,
   AdminProducts,
   AdminOrders,
@@ -31,7 +38,10 @@ function AppContent() {
   }, [dispatch]);
 
   return (
-    <Routes>
+    <>
+      <ScrollToTop />
+      <PageTransition>
+        <Routes>
       {/* User Routes */}
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
@@ -48,7 +58,15 @@ function AppContent() {
         <Route path="/login" element={<AuthPages />} />
         <Route path="/register" element={<AuthPages />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
-        <Route path="/forgot-password" element={<AuthPages />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/verify-forgot-password" element={<VerifyForgotPasswordPage />} />
+
+        {/* Policy Routes */}
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/faq" element={<FAQPage />} />
+        <Route path="/shipping" element={<ShippingPolicyPage />} />
+        <Route path="/return" element={<ReturnPolicyPage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
       </Route>
 
       {/* QR Ordering */}
@@ -63,7 +81,9 @@ function AppContent() {
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+      </Routes>
+      </PageTransition>
+    </>
   );
 }
 

@@ -51,7 +51,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Quick Actions */}
         <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <button className="p-2 bg-white rounded-xl shadow-md hover:bg-orange-50 transition-colors">
+          <button className="p-2 bg-white rounded-xl shadow-md hover:bg-red-50 transition-colors">
             <Heart className="w-5 h-5 text-gray-600 hover:text-red-500" />
           </button>
         </div>
@@ -61,7 +61,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <button
             onClick={handleAddToCart}
             disabled={!product.isAvailable}
-            className="w-full py-2.5 bg-orange-500 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-2.5 bg-red-500 text-white rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ShoppingCart className="w-5 h-5" />
             Thêm vào giỏ
@@ -72,11 +72,11 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Content */}
       <div className="p-4 flex flex-col flex-1">
         <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-semibold text-gray-900 line-clamp-2 group-hover:text-orange-600 transition-colors">
+          <h3 className="font-semibold text-gray-900 line-clamp-2 group-hover:text-red-600 transition-colors">
             {product.name}
           </h3>
           {product.preparationTime <= 15 && (
-            <div className="flex items-center gap-1 text-orange-500 shrink-0">
+            <div className="flex items-center gap-1 text-red-500 shrink-0">
               <Flame className="w-4 h-4" />
               <span className="text-xs">{product.preparationTime}p</span>
             </div>
@@ -94,7 +94,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-lg font-bold text-orange-600">
+            <span className="text-lg font-bold text-red-600">
               {formatPrice(product.price)}
             </span>
             {product.originalPrice && (

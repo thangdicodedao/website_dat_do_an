@@ -61,7 +61,7 @@ export default function ReviewCard({ review, onMarkHelpful }: ReviewCardProps) {
       <div className="flex items-center gap-4">
         <button
           onClick={() => onMarkHelpful?.(review.id)}
-          className="flex items-center gap-1 text-sm text-gray-500 hover:text-orange-500 transition-colors"
+          className="flex items-center gap-1 text-sm text-gray-500 hover:text-red-500 transition-colors"
         >
           <ThumbsUp className="w-4 h-4" />
           <span>Hữu ích ({review.helpful})</span>

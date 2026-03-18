@@ -77,8 +77,8 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-gray-50 py-4 md:py-8">
+      <div className="container mx-auto px-3 md:px-4">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link to="/cart" className="p-2 bg-white rounded-xl shadow-sm hover:bg-gray-50">
@@ -91,7 +91,7 @@ export default function CheckoutPage() {
           {/* Checkout Form */}
           <div className="lg:col-span-2 space-y-6">
             {/* Delivery Info */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Thông tin giao hàng
               </h2>
@@ -116,7 +116,7 @@ export default function CheckoutPage() {
                     onChange={(e) => setDeliveryAddress(e.target.value)}
                     placeholder="Nhập địa chỉ chi tiết..."
                     rows={3}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-300"
                   />
                 </div>
                 <div>
@@ -128,22 +128,22 @@ export default function CheckoutPage() {
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Ghi chú cho đơn hàng..."
                     rows={2}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-300"
                   />
                 </div>
               </div>
             </div>
 
             {/* Payment Method */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Phương thức thanh toán
               </h2>
               <div className="space-y-3">
                 <label className={`
-                  flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all
+                  flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all
                   ${paymentMethod === 'cod'
-                    ? 'border-orange-500 bg-orange-50'
+                    ? 'border-red-500 bg-red-50'
                     : 'border-gray-200 hover:border-gray-300'
                   }
                 `}>
@@ -155,20 +155,20 @@ export default function CheckoutPage() {
                     onChange={() => setPaymentMethod('cod')}
                     className="sr-only"
                   />
-                  <Banknote className="w-6 h-6 text-orange-500" />
+                  <Banknote className="w-6 h-6 text-red-500" />
                   <div className="flex-1">
                     <div className="font-medium text-gray-900">Thanh toán khi nhận hàng (COD)</div>
                     <div className="text-sm text-gray-500">Trả tiền mặt khi nhận được hàng</div>
                   </div>
                   {paymentMethod === 'cod' && (
-                    <CheckCircle className="w-6 h-6 text-orange-500" />
+                    <CheckCircle className="w-6 h-6 text-red-500" />
                   )}
                 </label>
 
                 <label className={`
-                  flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all
+                  flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all
                   ${paymentMethod === 'vnpay'
-                    ? 'border-orange-500 bg-orange-50'
+                    ? 'border-red-500 bg-red-50'
                     : 'border-gray-200 hover:border-gray-300'
                   }
                 `}>
@@ -180,20 +180,23 @@ export default function CheckoutPage() {
                     onChange={() => setPaymentMethod('vnpay')}
                     className="sr-only"
                   />
-                  <CreditCard className="w-6 h-6 text-orange-500" />
+                  <CreditCard className="w-6 h-6 text-red-500" />
                   <div className="flex-1">
                     <div className="font-medium text-gray-900">Thanh toán qua VNPAY</div>
                     <div className="text-sm text-gray-500">Thanh toán trực tuyến an toàn qua VNPAY</div>
                   </div>
                   {paymentMethod === 'vnpay' && (
-                    <CheckCircle className="w-6 h-6 text-orange-500" />
+                    <CheckCircle className="w-6 h-6 text-red-500" />
                   )}
                 </label>
               </div>
             </div>
+          </div>
 
+          {/* Right Sidebar */}
+          <div className="lg:col-span-1 space-y-6">
             {/* Order Items */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
+            <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Danh sách món ({items.length})
               </h2>
@@ -216,11 +219,9 @@ export default function CheckoutPage() {
                 ))}
               </div>
             </div>
-          </div>
 
-          {/* Order Summary */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl p-6 shadow-sm sticky top-24">
+            {/* Order Summary */}
+            <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm sticky top-20 md:top-24">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Tổng quan đơn hàng
               </h2>
@@ -242,7 +243,7 @@ export default function CheckoutPage() {
                 )}
                 <div className="border-t pt-3 flex justify-between">
                   <span className="font-semibold text-gray-900">Tổng cộng</span>
-                  <span className="text-2xl font-bold text-orange-600">
+                  <span className="text-2xl font-bold text-red-600">
                     {formatPrice(cart?.total || 0)}
                   </span>
                 </div>

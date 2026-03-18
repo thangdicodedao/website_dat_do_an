@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { QrCode, MapPin, Users, ArrowRight, ShoppingCart } from 'lucide-react';
 import { ProductCard } from '../../components/features';
-import { Button, PageLoader } from '../../components/common';
+import { Button, ProductListSkeleton } from '../../components/common';
 import { useAppSelector } from '../../hooks';
 import { tableAPI, productAPI } from '../../services';
 import { Table, Product } from '../../types';
@@ -51,7 +51,7 @@ export default function QRPage() {
   }, [tableId, qrCode]);
 
   if (loading) {
-    return <PageLoader />;
+    return <ProductListSkeleton count={6} />;
   }
 
   if (error || !table) {
@@ -74,11 +74,11 @@ export default function QRPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-orange-500 text-white py-6 px-4">
+      <div className="bg-red-500 text-white py-6 px-4">
         <div className="container mx-auto">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold">Quán ăn Bếp Việt</h1>
+              <h1 className="text-2xl font-bold">Quán ăn Bình Bún Bò</h1>
               <div className="flex items-center gap-4 mt-2 text-white/80">
                 <span className="flex items-center gap-1">
                   <MapPin className="w-4 h-4" />
@@ -96,7 +96,7 @@ export default function QRPage() {
             >
               <ShoppingCart className="w-6 h-6" />
               {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-white text-orange-600 text-xs font-bold rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-white text-red-600 text-xs font-bold rounded-full flex items-center justify-center">
                   {cartItemCount}
                 </span>
               )}

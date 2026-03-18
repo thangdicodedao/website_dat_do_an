@@ -1,20 +1,23 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Mail, ArrowLeft } from 'lucide-react';
-import { Button } from '../../components/common';
+import { ArrowLeft, Lock, Eye, EyeOff } from 'lucide-react';
+import { Button, Input } from '../../components/common';
 import { authAPI } from '../../services';
 import { useToast } from '../../components/common/Toast';
 
-export default function VerifyEmailPage() {
+export default function VerifyForgotPasswordPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { showToast } = useToast();
   const email = (location.state as { email?: string })?.email || '';
 
   const [verificationCode, setVerificationCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleVerify = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!verificationCode || verificationCode.length !== 6) {
@@ -22,24 +25,29 @@ export default function VerifyEmailPage() {
       return;
     }
 
+    if (!newPassword || newPassword.length < 6) {
+      showToast('error', 'Mật khẩu phải có ít nhất 6 ký tự');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      showToast('error', 'Mật khẩu không khớp');
+      return;
+    }
+
     setLoading(true);
     try {
-      await authAPI.verifyEmail({ email, code: verificationCode });
-      showToast('success', 'Xác thực email thành công!');
-      navigate('/');
+      await authAPI.resetPassword({
+        email,
+        code: verificationCode,
+        newPassword,
+      });
+      showToast('success', 'Đổi mật khẩu thành công!');
+      navigate('/login');
     } catch (error: any) {
-      showToast('error', error.message || 'Mã xác thực không đúng');
+      showToast('error', error.message || 'Có lỗi xảy ra');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleResend = async () => {
-    try {
-      await authAPI.resendCode(email);
-      showToast('success', 'Mã xác thực mới đã được gửi');
-    } catch (error: any) {
-      showToast('error', error.message);
     }
   };
 
@@ -57,16 +65,15 @@ export default function VerifyEmailPage() {
 
           <div className="text-center mb-8">
             <div className="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
-              <Mail className="w-8 h-8 text-red-500" />
+              <Lock className="w-8 h-8 text-red-500" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">Xác thực email</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Đặt lại mật khẩu</h1>
             <p className="text-gray-500 mt-2">
-              Nhập mã xác thực đã gửi đến<br />
-              <span className="font-medium text-gray-700">{email}</span>
+              Nhập mã xác thực và mật khẩu mới
             </p>
           </div>
 
-          <form onSubmit={handleVerify} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 Mã xác thực
@@ -86,14 +93,12 @@ export default function VerifyEmailPage() {
                       const code = newCode.join('').slice(0, 6);
                       setVerificationCode(code);
 
-                      // Auto focus next input
                       if (value && index < 5) {
                         const nextInput = document.getElementById(`otp-${index + 1}`);
                         nextInput?.focus();
                       }
                     }}
                     onKeyDown={(e) => {
-                      // Handle backspace
                       if (e.key === 'Backspace' && !verificationCode[index] && index > 0) {
                         const prevInput = document.getElementById(`otp-${index - 1}`);
                         prevInput?.focus();
@@ -106,22 +111,37 @@ export default function VerifyEmailPage() {
               </div>
             </div>
 
+            <div className="relative">
+              <Input
+                label="Mật khẩu mới"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Nhập mật khẩu mới"
+                icon={<Lock className="w-5 h-5" />}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-[38px] text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+
+            <Input
+              label="Xác nhận mật khẩu"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Nhập lại mật khẩu mới"
+              icon={<Lock className="w-5 h-5" />}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+
             <Button type="submit" className="w-full" size="lg" isLoading={loading}>
-              Xác thực
+              Đổi mật khẩu
             </Button>
           </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-gray-500 text-sm">
-              Chưa nhận được mã?
-            </p>
-            <button
-              onClick={handleResend}
-              className="text-red-500 font-medium hover:text-red-600 text-sm mt-1"
-            >
-              Gửi lại mã
-            </button>
-          </div>
         </div>
       </div>
     </div>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Heart, Share2, Truck, Clock, Flame, AlertCircle } from 'lucide-react';
 import { ProductGallery, ProductCard, ReviewCard } from '../../components/features';
-import { Button, QuantitySelector, PageLoader, RatingStars } from '../../components/common';
+import { Button, QuantitySelector, RatingStars, ProductDetailSkeleton } from '../../components/common';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { fetchProductById, fetchRecommendedProducts, clearCurrentProduct } from '../../store/slices/productSlice';
 import { addToCart } from '../../store/slices/cartSlice';
@@ -55,7 +55,7 @@ export default function ProductDetailPage() {
   };
 
   if (loading || !currentProduct) {
-    return <PageLoader />;
+    return <ProductDetailSkeleton />;
   }
 
   const displayedReviews = showAllReviews ? reviews : reviews.slice(0, 3);
@@ -64,16 +64,16 @@ export default function ProductDetailPage() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-          <Link to="/" className="hover:text-orange-500">Trang chủ</Link>
+        <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6 overflow-x-auto whitespace-nowrap">
+          <Link to="/" className="hover:text-red-500">Trang chủ</Link>
           <span>/</span>
-          <Link to="/products" className="hover:text-orange-500">Sản phẩm</Link>
+          <Link to="/products" className="hover:text-red-500">Sản phẩm</Link>
           <span>/</span>
-          <Link to={`/products?category=${currentProduct.categoryName.toLowerCase()}`} className="hover:text-orange-500">
+          <Link to={`/products?category=${currentProduct.categoryName.toLowerCase()}`} className="hover:text-red-500">
             {currentProduct.categoryName}
           </Link>
           <span>/</span>
-          <span className="text-gray-900">{currentProduct.name}</span>
+          <span className="text-gray-900 truncate">{currentProduct.name}</span>
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
@@ -84,14 +84,14 @@ export default function ProductDetailPage() {
           <div>
             <div className="bg-white rounded-2xl p-6 shadow-sm">
               <div className="flex items-start justify-between gap-4 mb-4">
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 truncate w-full">
                   {currentProduct.name}
                 </h1>
                 <div className="flex gap-2">
                   <button className="p-2.5 bg-gray-100 rounded-xl hover:bg-red-50 hover:text-red-500 transition-colors">
                     <Heart className="w-5 h-5" />
                   </button>
-                  <button className="p-2.5 bg-gray-100 rounded-xl hover:bg-orange-50 hover:text-orange-500 transition-colors">
+                  <button className="p-2.5 bg-gray-100 rounded-xl hover:bg-red-50 hover:text-red-500 transition-colors">
                     <Share2 className="w-5 h-5" />
                   </button>
                 </div>
@@ -105,7 +105,7 @@ export default function ProductDetailPage() {
 
               {/* Price */}
               <div className="flex items-baseline gap-3 mb-6">
-                <span className="text-3xl font-bold text-orange-600">
+                <span className="text-3xl font-bold text-red-600">
                   {formatPrice(currentProduct.price)}
                 </span>
                 {currentProduct.originalPrice && (
@@ -121,17 +121,17 @@ export default function ProductDetailPage() {
               {/* Info Icons */}
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="flex items-center gap-2 text-gray-600">
-                  <Clock className="w-5 h-5 text-orange-500" />
+                  <Clock className="w-5 h-5 text-red-500" />
                   <span>{currentProduct.preparationTime} phút</span>
                 </div>
                 {currentProduct.calories && (
                   <div className="flex items-center gap-2 text-gray-600">
-                    <Flame className="w-5 h-5 text-orange-500" />
+                    <Flame className="w-5 h-5 text-red-500" />
                     <span>{currentProduct.calories} kcal</span>
                   </div>
                 )}
                 <div className="flex items-center gap-2 text-gray-600">
-                  <Truck className="w-5 h-5 text-orange-500" />
+                  <Truck className="w-5 h-5 text-red-500" />
                   <span>Giao hàng nhanh</span>
                 </div>
               </div>
@@ -191,7 +191,7 @@ export default function ProductDetailPage() {
 
           {reviewLoading ? (
             <div className="flex justify-center py-8">
-              <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+              <div className="w-8 h-8 border-4 border-red-500 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : reviews.length === 0 ? (
             <div className="bg-white rounded-2xl p-8 text-center shadow-sm">

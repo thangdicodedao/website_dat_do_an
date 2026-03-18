@@ -101,6 +101,28 @@ export const authAPI = {
     return { message: 'Mã xác thực đã được gửi đến email của bạn' };
   },
 
+  resetPassword: async (data: { email: string; code: string; newPassword: string }): Promise<{ message: string }> => {
+    await mockApi.delay(800);
+
+    const storedCode = VERIFICATION_CODES[`reset_${data.email}`];
+    if (!storedCode || storedCode !== data.code) {
+      throw new Error('Mã xác thực không đúng');
+    }
+
+    // Update password in localStorage
+    const storedUsers = JSON.parse(localStorage.getItem('users') || '[]') as User[];
+    const userIndex = storedUsers.findIndex(u => u.email === data.email);
+
+    if (userIndex !== -1) {
+      storedUsers[userIndex] = { ...storedUsers[userIndex], password: data.newPassword };
+      localStorage.setItem('users', JSON.stringify(storedUsers));
+    }
+
+    delete VERIFICATION_CODES[`reset_${data.email}`];
+
+    return { message: 'Đổi mật khẩu thành công' };
+  },
+
   logout: async (): Promise<void> => {
     await mockApi.delay(300);
     localStorage.removeItem('auth_token');
