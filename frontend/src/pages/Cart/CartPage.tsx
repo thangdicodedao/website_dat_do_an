@@ -50,7 +50,7 @@ export default function CartPage() {
                   <span>{formatPrice(cart?.subtotal || 0)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
-                  <span>Thuế (10%)</span>
+                  <span>Thuế (4.5%)</span>
                   <span>{formatPrice(cart?.tax || 0)}</span>
                 </div>
                 {cart?.discount && cart.discount > 0 && (

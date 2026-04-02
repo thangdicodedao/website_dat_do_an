@@ -346,8 +346,9 @@ export interface Address {
   name: string;
   phone: string;
   address: string;
-  city: string;
-  district: string;
-  ward: string;
+  city?: string;
+  district?: string;
+  ward?: string;
+  label?: string;
   isDefault: boolean;
 }

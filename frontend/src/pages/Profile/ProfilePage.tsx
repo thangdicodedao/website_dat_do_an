@@ -1,66 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { User, Package, Heart, Lock, MapPin, Plus, Trash2, Edit, Star, Check, Save, X, CreditCard, Clock } from 'lucide-react';
+import { User as UserIcon, Package, Heart, Lock, MapPin, Plus, Trash2, Edit, Star, Check, Save, X, CreditCard, Clock } from 'lucide-react';
 import { Button, Input, ProfileSkeleton } from '../../components/common';
 import { useAppSelector, useAppDispatch } from '../../hooks';
 import { fetchOrders } from '../../store/slices/orderSlice';
+import { setUser } from '../../store/slices/authSlice';
+import { addressAPI, userAPI, authAPI } from '../../services';
+import { Address } from '../../types';
 import { formatPrice, formatDate, getStatusColor, getStatusLabel } from '../../utils';
-
-// Types
-interface Address {
-  id: string;
-  name: string;
-  phone: string;
-  email?: string;
-  address: string;
-  label?: string; // Ghi chú địa chỉ (VD: Nhà riêng, Cơ quan,...)
-  isDefault: boolean;
-}
-
-interface FavoriteProduct {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  rating: number;
-  reviewCount: number;
-}
-
-// Mock favorites data
-const mockFavorites: FavoriteProduct[] = [
-  {
-    id: '1',
-    name: 'Phở Bò Nạm',
-    price: 45000,
-    image: 'https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=400',
-    rating: 4.8,
-    reviewCount: 124,
-  },
-  {
-    id: '2',
-    name: 'Bún Bò Huế',
-    price: 40000,
-    image: 'https://images.unsplash.com/photo-1534429818389-76febb7f768d?w=400',
-    rating: 4.7,
-    reviewCount: 89,
-  },
-  {
-    id: '3',
-    name: 'Trà Đá Chanh',
-    price: 15000,
-    image: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400',
-    rating: 4.5,
-    reviewCount: 67,
-  },
-  {
-    id: '4',
-    name: 'Khoai Tây Chiên',
-    price: 35000,
-    image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400',
-    rating: 4.6,
-    reviewCount: 156,
-  },
-];
 
 // Timeline Item Component
 function TimelineItem({ label, date, isCompleted, isLast = false }: { label: string; date?: string; isCompleted: boolean; isLast?: boolean }) {
@@ -79,17 +26,26 @@ function TimelineItem({ label, date, isCompleted, isLast = false }: { label: str
 }
 
 // Profile Info Tab Component
-function ProfileInfoTab({ user }: { user: any }) {
+function ProfileInfoTab({ user, onUpdate }: { user: any; onUpdate: (data: { name: string; phone: string }) => Promise<void> }) {
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     name: user?.name || '',
     phone: user?.phone || '',
   });
 
-  const handleSave = () => {
-    // API call to update profile would go here
-    setIsEditing(false);
-    alert('Cập nhật thông tin thành công!');
+  const handleSave = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      await onUpdate(formData);
+      setIsEditing(false);
+    } catch (err: any) {
+      setError(err.message || 'Cập nhật thất bại');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -135,13 +91,15 @@ function ProfileInfoTab({ user }: { user: any }) {
           )}
         </div>
 
+        {error && <p className="text-sm text-red-500">{error}</p>}
+
         {isEditing && (
           <div className="flex gap-2 pt-2">
-            <Button variant="outline" className="flex-1" onClick={() => setIsEditing(false)}>
+            <Button variant="outline" className="flex-1" onClick={() => setIsEditing(false)} disabled={loading}>
               Hủy
             </Button>
-            <Button className="flex-1" onClick={handleSave}>
-              <Save className="w-4 h-4 mr-1" /> Lưu
+            <Button className="flex-1" onClick={handleSave} disabled={loading}>
+              <Save className="w-4 h-4 mr-1" /> {loading ? 'Đang lưu...' : 'Lưu'}
             </Button>
           </div>
         )}
@@ -153,38 +111,12 @@ function ProfileInfoTab({ user }: { user: any }) {
 export default function ProfilePage() {
   const dispatch = useAppDispatch();
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
-  const { orders, loading } = useAppSelector((state) => state.orders);
+  const { orders, loading: ordersLoading } = useAppSelector((state) => state.orders);
   const [activeTab, setActiveTab] = useState<'orders' | 'profile' | 'addresses' | 'favorites' | 'password'>('orders');
 
   // Address state
-  const [addresses, setAddresses] = useState<Address[]>([
-    {
-      id: '1',
-      name: 'Nguyễn Văn A',
-      phone: '0912345678',
-      email: 'a@gmail.com',
-      address: '123 Đường Nguyễn Trãi, Quận 1, TP.HCM',
-      label: 'Nhà riêng',
-      isDefault: true,
-    },
-    {
-      id: '2',
-      name: 'Nguyễn Văn A',
-      phone: '0912345678',
-      email: 'a@gmail.com',
-      address: '456 Đường Lê Văn Sỹ, Quận 3, TP.HCM',
-      label: 'Cơ quan',
-      isDefault: false,
-    },
-    {
-      id: '3',
-      name: 'Nguyễn Văn A',
-      phone: '0912345678',
-      address: '789 Đường Pasteur, Quận 1, TP.HCM',
-      label: 'Nhà riêng',
-      isDefault: false,
-    },
-  ]);
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [addressesLoading, setAddressesLoading] = useState(false);
   const [showAddAddress, setShowAddAddress] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
 
@@ -195,6 +127,8 @@ export default function ProfilePage() {
     confirmPassword: '',
   });
   const [passwordError, setPasswordError] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState('');
 
   // Order detail state
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
@@ -204,6 +138,107 @@ export default function ProfilePage() {
       dispatch(fetchOrders({ userId: user.id }));
     }
   }, [dispatch, isAuthenticated, user]);
+
+  // Load addresses
+  useEffect(() => {
+    if (isAuthenticated && activeTab === 'addresses') {
+      loadAddresses();
+    }
+  }, [isAuthenticated, activeTab]);
+
+  const loadAddresses = async () => {
+    setAddressesLoading(true);
+    try {
+      const data = await addressAPI.getAddresses();
+      setAddresses(data);
+    } catch {
+      // Silently fail
+    } finally {
+      setAddressesLoading(false);
+    }
+  };
+
+  const handleUpdateProfile = async (data: { name: string; phone: string }) => {
+    const updated = await userAPI.updateProfile(data);
+    dispatch(setUser(updated));
+  };
+
+  const handleSetDefaultAddress = async (id: string) => {
+    try {
+      await addressAPI.setDefaultAddress(id);
+      setAddresses(addresses.map(addr => ({
+        ...addr,
+        isDefault: addr.id === id,
+      })));
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Có lỗi xảy ra');
+    }
+  };
+
+  const handleDeleteAddress = async (id: string) => {
+    if (!confirm('Bạn có chắc muốn xóa địa chỉ này?')) return;
+    try {
+      await addressAPI.deleteAddress(id);
+      setAddresses(addresses.filter(addr => addr.id !== id));
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Có lỗi xảy ra');
+    }
+  };
+
+  const handleSaveAddress = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      name: formData.get('name') as string,
+      phone: formData.get('phone') as string,
+      address: formData.get('address') as string,
+      city: formData.get('city') as string || 'TP.HCM',
+      district: formData.get('district') as string || '',
+      ward: formData.get('ward') as string || '',
+      label: (formData.get('label') as string) || 'Nhà riêng',
+      isDefault: addresses.length === 0 || formData.get('isDefault') === 'on',
+    };
+
+    try {
+      if (editingAddress) {
+        const updated = await addressAPI.updateAddress(editingAddress.id, data);
+        setAddresses(addresses.map(addr => addr.id === editingAddress.id ? updated : addr));
+      } else {
+        const created = await addressAPI.createAddress(data);
+        setAddresses([created, ...addresses]);
+      }
+      setShowAddAddress(false);
+      setEditingAddress(null);
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Có lỗi xảy ra');
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError('Mật khẩu xác nhận không khớp');
+      return;
+    }
+    if (passwordData.newPassword.length < 6) {
+      setPasswordError('Mật khẩu phải có ít nhất 6 ký tự');
+      return;
+    }
+
+    setPasswordLoading(true);
+    try {
+      await authAPI.changePassword(passwordData.currentPassword, passwordData.newPassword);
+      setPasswordSuccess('Đổi mật khẩu thành công!');
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err: any) {
+      setPasswordError(err.response?.data?.message || 'Có lỗi xảy ra');
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
 
   if (!isAuthenticated || !user) {
     return (
@@ -218,60 +253,9 @@ export default function ProfilePage() {
     );
   }
 
-  const handleSetDefaultAddress = (id: string) => {
-    setAddresses(addresses.map(addr => ({
-      ...addr,
-      isDefault: addr.id === id,
-    })));
-  };
-
-  const handleDeleteAddress = (id: string) => {
-    if (confirm('Bạn có chắc muốn xóa địa chỉ này?')) {
-      setAddresses(addresses.filter(addr => addr.id !== id));
-    }
-  };
-
-  const handleSaveAddress = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const newAddress: Address = {
-      id: editingAddress?.id || Date.now().toString(),
-      name: formData.get('name') as string,
-      phone: formData.get('phone') as string,
-      email: formData.get('email') as string || undefined,
-      address: formData.get('address') as string,
-      label: (formData.get('label') as string) || undefined,
-      isDefault: addresses.length === 0 || formData.get('isDefault') === 'on',
-    };
-
-    if (editingAddress) {
-      setAddresses(addresses.map(addr => addr.id === editingAddress.id ? newAddress : addr));
-    } else {
-      setAddresses([...addresses, newAddress]);
-    }
-
-    setShowAddAddress(false);
-    setEditingAddress(null);
-  };
-
-  const handleChangePassword = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setPasswordError('Mật khẩu xác nhận không khớp');
-      return;
-    }
-    if (passwordData.newPassword.length < 6) {
-      setPasswordError('Mật khẩu phải có ít nhất 6 ký tự');
-      return;
-    }
-    setPasswordError('');
-    alert('Đổi mật khẩu thành công!');
-    setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-  };
-
   const tabs = [
     { id: 'orders', label: 'Lịch sử đơn hàng', icon: Package },
-    { id: 'profile', label: 'Thông tin tài khoản', icon: User },
+    { id: 'profile', label: 'Thông tin tài khoản', icon: UserIcon },
     { id: 'addresses', label: 'Địa chỉ', icon: MapPin },
     { id: 'favorites', label: 'Yêu thích', icon: Heart },
     { id: 'password', label: 'Đổi mật khẩu', icon: Lock },
@@ -287,7 +271,7 @@ export default function ProfilePage() {
               <img src={user.avatar} alt={user.name} className="w-16 h-16 rounded-full object-cover" />
             ) : (
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-                <User className="w-8 h-8 text-red-500" />
+                <UserIcon className="w-8 h-8 text-red-500" />
               </div>
             )}
             <div>
@@ -318,7 +302,7 @@ export default function ProfilePage() {
         {/* Orders Tab */}
         {activeTab === 'orders' && (
           <div className="space-y-4">
-            {loading ? (
+            {ordersLoading ? (
               <ProfileSkeleton />
             ) : orders.length === 0 ? (
               <div className="bg-white rounded-2xl p-8 text-center shadow-sm">
@@ -372,7 +356,7 @@ export default function ProfilePage() {
 
         {/* Profile Tab */}
         {activeTab === 'profile' && (
-          <ProfileInfoTab user={user} />
+          <ProfileInfoTab user={user} onUpdate={handleUpdateProfile} />
         )}
 
         {/* Addresses Tab */}
@@ -380,12 +364,14 @@ export default function ProfilePage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">Địa chỉ của tôi</h2>
-              <Button size="sm" onClick={() => setShowAddAddress(true)}>
+              <Button size="sm" onClick={() => { setEditingAddress(null); setShowAddAddress(true); }}>
                 <Plus className="w-4 h-4 mr-1" /> Thêm địa chỉ
               </Button>
             </div>
 
-            {addresses.length === 0 ? (
+            {addressesLoading ? (
+              <ProfileSkeleton />
+            ) : addresses.length === 0 ? (
               <div className="bg-white rounded-2xl p-8 text-center shadow-sm">
                 <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-500 mb-4">Chưa có địa chỉ nào</p>
@@ -411,9 +397,6 @@ export default function ProfilePage() {
                         <span className="text-gray-500">|</span>
                         <span className="text-gray-600">{address.phone}</span>
                       </div>
-                      {address.email && (
-                        <p className="text-sm text-gray-500">{address.email}</p>
-                      )}
                       <p className="text-sm text-gray-600">{address.address}</p>
                     </div>
                     <div className="flex items-center gap-2 mt-4 pt-4 border-t">
@@ -440,29 +423,13 @@ export default function ProfilePage() {
         {activeTab === 'favorites' && (
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-gray-900">Sản phẩm yêu thích</h2>
-            {mockFavorites.length === 0 ? (
-              <div className="bg-white rounded-2xl p-8 text-center shadow-sm">
-                <Heart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500 mb-4">Chưa có sản phẩm yêu thích nào</p>
-                <Link to="/products">
-                  <Button>Khám phá sản phẩm</Button>
-                </Link>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {mockFavorites.map((product) => (
-                  <div key={product.id} className="bg-white rounded-2xl p-4 shadow-sm">
-                    <img src={product.image} alt={product.name} className="w-full h-32 object-cover rounded-xl mb-3" />
-                    <h3 className="font-medium text-gray-900 text-sm">{product.name}</h3>
-                    <div className="flex items-center gap-1 mt-1">
-                      <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                      <span className="text-xs text-gray-500">{product.rating} ({product.reviewCount})</span>
-                    </div>
-                    <p className="font-semibold text-red-500 mt-2">{formatPrice(product.price)}</p>
-                  </div>
-                ))}
-              </div>
-            )}
+            <div className="bg-white rounded-2xl p-8 text-center shadow-sm">
+              <Heart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500 mb-4">Chưa có sản phẩm yêu thích nào</p>
+              <Link to="/products">
+                <Button>Khám phá sản phẩm</Button>
+              </Link>
+            </div>
           </div>
         )}
 
@@ -470,6 +437,9 @@ export default function ProfilePage() {
         {activeTab === 'password' && (
           <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm max-w-lg">
             <h2 className="text-lg font-semibold text-gray-900 mb-6">Đổi mật khẩu</h2>
+            {passwordSuccess && (
+              <div className="mb-4 p-3 bg-green-50 text-green-700 rounded-xl text-sm">{passwordSuccess}</div>
+            )}
             <form onSubmit={handleChangePassword} className="space-y-4">
               <Input
                 label="Mật khẩu hiện tại"
@@ -493,7 +463,9 @@ export default function ProfilePage() {
                 error={passwordError}
                 required
               />
-              <Button type="submit" className="w-full">Đổi mật khẩu</Button>
+              <Button type="submit" className="w-full" disabled={passwordLoading}>
+                {passwordLoading ? 'Đang đổi...' : 'Đổi mật khẩu'}
+              </Button>
             </form>
           </div>
         )}
@@ -527,13 +499,6 @@ export default function ProfilePage() {
                 name="label"
                 defaultValue={editingAddress?.label}
                 placeholder="Nhà riêng"
-              />
-              <Input
-                label="Email (tùy chọn)"
-                name="email"
-                type="email"
-                defaultValue={editingAddress?.email}
-                placeholder="email@example.com"
               />
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Địa chỉ</label>

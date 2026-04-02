@@ -15,7 +15,7 @@ let cartData: Cart = {
   updatedAt: new Date().toISOString(),
 };
 
-const TAX_RATE = 0.1; // 10% VAT
+const TAX_RATE = 0.045; // 4.5% VAT
 
 const calculateCartTotals = () => {
   cartData.subtotal = cartData.items.reduce((sum, item) => sum + item.price * item.quantity, 0);

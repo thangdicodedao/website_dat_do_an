@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './store';
 import { ToastProvider, ScrollToTop, PageTransition } from './components/common';
-import { Layout } from './components/layout';
+import { Layout, AdminLayout } from './components/layout';
 import {
   HomePage,
   ProductsPage,
@@ -74,10 +74,12 @@ function AppContent() {
       <Route path="/qr" element={<QRPage />} />
 
       {/* Admin Routes */}
-      <Route path="/admin" element={<AdminDashboard />} />
-      <Route path="/admin/products" element={<AdminProducts />} />
-      <Route path="/admin/orders" element={<AdminOrders />} />
-      <Route path="/admin/users" element={<AdminUsers />} />
+      <Route element={<AdminLayout />}>
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/products" element={<AdminProducts />} />
+        <Route path="/admin/orders" element={<AdminOrders />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
+      </Route>
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />

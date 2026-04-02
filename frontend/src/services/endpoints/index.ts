@@ -5,3 +5,4 @@ export { orderAPI } from './order';
 export { paymentAPI, handleVnpayCallback } from './payment';
 export { tableAPI } from './table';
 export { userAPI } from './user';
+export { addressAPI } from './address';

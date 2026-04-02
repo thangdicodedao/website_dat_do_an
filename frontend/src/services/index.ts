@@ -1,2 +1,2 @@
-export { default as api, mockApi } from './api';
+export { default as api, isTokenExpired, mockApi } from './api';
 export * from './endpoints';
