@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { AuthState, User, LoginCredentials, RegisterData } from '../../types';
 import { authAPI } from '../../services';
+import { resetAuthCleared, markAuthCleared } from '../../services/api';
 
 const initialState: AuthState = {
   user: null,
@@ -49,6 +50,10 @@ export const logout = createAsyncThunk(
 export const checkAuth = createAsyncThunk(
   'auth/checkAuth',
   async (_, { rejectWithValue }) => {
+    // Skip API call if no token exists
+    if (!localStorage.getItem('auth_token')) {
+      return null;
+    }
     try {
       const user = await authAPI.getCurrentUser();
       return user;
@@ -81,6 +86,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload;
         state.isAuthenticated = true;
+        resetAuthCleared();
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -104,6 +110,7 @@ const authSlice = createSlice({
         state.user = null;
         state.isAuthenticated = false;
         state.loading = false;
+        markAuthCleared();
       })
       // Check Auth
       .addCase(checkAuth.pending, (state) => {

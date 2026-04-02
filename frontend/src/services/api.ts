@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -10,12 +10,17 @@ const api: AxiosInstance = axios.create({
   timeout: 10000,
 });
 
+// Track if auth has been cleared (prevents infinite redirect loops)
+let authCleared = false;
+
 // Request interceptor - Add auth token
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('auth_token');
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (!authCleared) {
+      const token = localStorage.getItem('auth_token');
+      if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },
@@ -23,19 +28,6 @@ api.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-
-// Track if refresh is in progress
-let isRefreshing = false;
-let refreshSubscribers: Array<(token: string) => void> = [];
-
-const subscribeTokenRefresh = (callback: (token: string) => void) => {
-  refreshSubscribers.push(callback);
-};
-
-const onRefreshComplete = (token: string) => {
-  refreshSubscribers.forEach((cb) => cb(token));
-  refreshSubscribers = [];
-};
 
 // Response interceptor - Handle errors and token refresh
 api.interceptors.response.use(
@@ -45,20 +37,12 @@ api.interceptors.response.use(
 
     // Handle 401 - attempt token refresh
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-      if (isRefreshing) {
-        // Wait for refresh to complete
-        return new Promise((resolve) => {
-          subscribeTokenRefresh((token: string) => {
-            if (originalRequest.headers) {
-              originalRequest.headers.Authorization = `Bearer ${token}`;
-            }
-            resolve(api(originalRequest));
-          });
-        });
+      // If auth already cleared, don't refresh — just reject
+      if (authCleared) {
+        return Promise.reject(error);
       }
 
       originalRequest._retry = true;
-      isRefreshing = true;
 
       try {
         const refreshToken = localStorage.getItem('refresh_token');
@@ -75,23 +59,33 @@ api.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         }
 
-        onRefreshComplete(accessToken);
-        isRefreshing = false;
-
         return api(originalRequest);
-      } catch (refreshError) {
-        isRefreshing = false;
+      } catch {
+        // Refresh failed — clear auth and redirect via React Router
+        authCleared = true;
         localStorage.removeItem('auth_token');
         localStorage.removeItem('refresh_token');
         localStorage.removeItem('user');
+
+        // Use window.location for SPA navigation (triggers React Router redirect)
         window.location.href = '/login';
-        return Promise.reject(refreshError);
+        return Promise.reject(error);
       }
     }
 
     return Promise.reject(error);
   }
 );
+
+// Reset auth cleared flag (call after successful login)
+export const resetAuthCleared = () => {
+  authCleared = false;
+};
+
+// Mark auth as cleared (call on logout)
+export const markAuthCleared = () => {
+  authCleared = true;
+};
 
 export default api;
 
