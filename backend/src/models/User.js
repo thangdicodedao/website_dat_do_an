@@ -9,7 +9,7 @@ const toUser = (row) => {
     name: row.name,
     phone: row.phone || '',
     avatar: row.avatar || null,
-    role: row.role,
+    role: String(row.role || 'user').toLowerCase(),
     isVerified: Boolean(row.is_verified),
     address: row.address || null,
     createdAt: row.created_at,
@@ -29,8 +29,9 @@ const User = {
   },
 
   async findByIdWithPassword(id) {
-    const [rows] = await query('SELECT * FROM users WHERE id = ?', [id]);
-    return rows[0] ? { ...toUser(rows[0]), _password: rows[0].password } : null;
+    const [rows] = await query('SELECT id, email, name, phone, avatar, role, is_verified, address, password, created_at, updated_at FROM users WHERE id = ?', [id]);
+    if (!rows[0]) return null;
+    return { ...toUser(rows[0]), _password: rows[0].password };
   },
 
   async findByIdWithRefreshToken(id) {
@@ -77,6 +78,10 @@ const User = {
 
   async setResetCode(id, code, expires) {
     await query('UPDATE users SET reset_password_code = ?, reset_password_expires = ? WHERE id = ?', [code, expires, id]);
+  },
+
+  async setVerificationCode(id, code, expires) {
+    await query('UPDATE users SET verification_code = ?, verification_code_expires = ? WHERE id = ?', [code, expires, id]);
   },
 
   async findByResetCode(email, code) {
@@ -130,6 +135,10 @@ const User = {
     const values = [];
 
     for (const key of Object.keys(fields)) {
+      if (fields[key] === undefined) {
+        continue;
+      }
+
       const dbKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
       if (allowed.includes(dbKey)) {
         if (key === 'isVerified') {

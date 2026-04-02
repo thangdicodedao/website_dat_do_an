@@ -17,12 +17,11 @@ const adminOnly = require('../middleware/admin.middleware');
 // Admin routes
 router.get('/', protect, adminOnly, getUsers);
 router.get('/stats', protect, adminOnly, getAdminStats);
+// User profile route (must be before /:id)
+router.put('/profile', protect, updateProfile);
 router.get('/:id', protect, adminOnly, getUserById);
 router.put('/:id', protect, adminOnly, updateUser);
 router.delete('/:id', protect, adminOnly, deleteUser);
 router.patch('/:id/role', protect, adminOnly, toggleUserRole);
-
-// User profile route
-router.put('/profile', protect, updateProfile);
 
 module.exports = router;

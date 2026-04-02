@@ -18,6 +18,7 @@ export default function Header() {
 
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const { items } = useAppSelector((state) => state.cart);
+  const isAdmin = String(user?.role || '').toLowerCase() === 'admin';
 
   // Click outside to close suggestions
   useEffect(() => {
@@ -275,9 +276,9 @@ export default function Header() {
                       <Link to="/orders" className="block px-4 py-2 text-gray-700 hover:bg-red-50 hover:text-red-500" onClick={() => setIsUserMenuOpen(false)}>
                         Lịch sử đơn hàng
                       </Link>
-                      {user?.role === 'admin' && (
+                      {isAdmin && (
                         <Link to="/admin" className="block px-4 py-2 text-gray-700 hover:bg-red-50 hover:text-red-500" onClick={() => setIsUserMenuOpen(false)}>
-                          Quản lý
+                          Trang quản trị
                         </Link>
                       )}
                       <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center gap-2">
@@ -480,6 +481,20 @@ export default function Header() {
                     >
                       Chính sách bảo mật
                     </Link>
+                    {isAuthenticated && isAdmin && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={cn(
+                          'px-4 py-3 rounded-xl font-medium transition-colors',
+                          location.pathname.startsWith('/admin')
+                            ? 'bg-red-500 text-white'
+                            : 'text-gray-700 hover:bg-red-50'
+                        )}
+                      >
+                        Trang quản trị
+                      </Link>
+                    )}
                     {!isAuthenticated && (
                       <Link
                         to="/login"

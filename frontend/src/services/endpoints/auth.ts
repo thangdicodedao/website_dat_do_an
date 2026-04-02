@@ -1,6 +1,11 @@
 import api from '../api';
 import { User, LoginCredentials, RegisterData, VerifyEmailData, ForgotPasswordData } from '../../types';
 
+// Helper to extract error message from axios error
+const getErrorMessage = (error: any): string => {
+  return error?.response?.data?.message || error?.message || 'Có lỗi xảy ra';
+};
+
 export const authAPI = {
   login: async (credentials: LoginCredentials): Promise<{ user: User; token: string }> => {
     const response = await api.post('/auth/login', credentials);
@@ -67,3 +72,7 @@ export const authAPI = {
     return response.data;
   },
 };
+
+// Export error helper for use in slices
+export { getErrorMessage };
+

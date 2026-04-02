@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { AuthState, User, LoginCredentials, RegisterData } from '../../types';
-import { authAPI } from '../../services';
+import { authAPI, getErrorMessage } from '../../services';
 import { resetAuthCleared, markAuthCleared } from '../../services/api';
 
 const initialState: AuthState = {
@@ -18,7 +18,7 @@ export const login = createAsyncThunk(
       const { user } = await authAPI.login(credentials);
       return user;
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Đăng nhập thất bại');
+      return rejectWithValue(getErrorMessage(error));
     }
   }
 );
@@ -30,7 +30,7 @@ export const register = createAsyncThunk(
       const result = await authAPI.register(data);
       return result;
     } catch (error: any) {
-      return rejectWithValue(error.message || 'Đăng ký thất bại');
+      return rejectWithValue(getErrorMessage(error));
     }
   }
 );
@@ -42,7 +42,7 @@ export const logout = createAsyncThunk(
       await authAPI.logout();
       return null;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(getErrorMessage(error));
     }
   }
 );
@@ -58,7 +58,7 @@ export const checkAuth = createAsyncThunk(
       const user = await authAPI.getCurrentUser();
       return user;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(getErrorMessage(error));
     }
   }
 );
@@ -99,7 +99,6 @@ const authSlice = createSlice({
       })
       .addCase(register.fulfilled, (state) => {
         state.loading = false;
-        // User will be set after email verification
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;

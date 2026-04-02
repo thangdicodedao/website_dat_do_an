@@ -11,6 +11,14 @@ const { sendVerificationEmail, sendPasswordResetEmail } = require('../services/e
 const register = catchAsync(async (req, res) => {
   const { email, password, name, phone } = req.body;
 
+  if (!email || !password || !name) {
+    return ApiResponse.error(res, 'Vui lòng nhập đầy đủ tên, email và mật khẩu', 400);
+  }
+
+  if (String(password).length < 6) {
+    return ApiResponse.error(res, 'Mật khẩu phải có ít nhất 6 ký tự', 400);
+  }
+
   const existingUser = await User.findByEmail(email);
   if (existingUser) {
     return ApiResponse.error(res, 'Email đã được sử dụng', 400);
@@ -40,6 +48,10 @@ const register = catchAsync(async (req, res) => {
 const verifyEmail = catchAsync(async (req, res) => {
   const { email, code } = req.body;
 
+  if (!email || !code) {
+    return ApiResponse.error(res, 'Email và mã xác thực là bắt buộc', 400);
+  }
+
   const userWithCode = await User.findByEmailWithCode(email, code);
   if (!userWithCode || userWithCode.verification_code !== code) {
     return ApiResponse.error(res, 'Mã xác thực không đúng hoặc đã hết hạn', 400);
@@ -59,6 +71,10 @@ const verifyEmail = catchAsync(async (req, res) => {
 // @access  Public
 const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
+
+  if (!email || !password) {
+    return ApiResponse.error(res, 'Email và mật khẩu là bắt buộc', 400);
+  }
 
   const userRow = await User.findByEmailWithPassword(email);
   if (!userRow) {
@@ -102,6 +118,10 @@ const getCurrentUser = catchAsync(async (req, res) => {
 const forgotPassword = catchAsync(async (req, res) => {
   const { email } = req.body;
 
+  if (!email) {
+    return ApiResponse.error(res, 'Email là bắt buộc', 400);
+  }
+
   const user = await User.findByEmailWithPassword(email);
   if (!user) {
     return ApiResponse.success(res, null, 'Nếu email tồn tại, mã đặt lại mật khẩu sẽ được gửi');
@@ -121,6 +141,14 @@ const forgotPassword = catchAsync(async (req, res) => {
 // @access  Public
 const resetPassword = catchAsync(async (req, res) => {
   const { email, code, newPassword } = req.body;
+
+  if (!email || !code || !newPassword) {
+    return ApiResponse.error(res, 'Email, mã xác nhận và mật khẩu mới là bắt buộc', 400);
+  }
+
+  if (String(newPassword).length < 6) {
+    return ApiResponse.error(res, 'Mật khẩu mới phải có ít nhất 6 ký tự', 400);
+  }
 
   const user = await User.findByResetCode(email, code);
   if (!user) {
@@ -164,6 +192,10 @@ const refreshTokenFn = catchAsync(async (req, res) => {
 const resendCode = catchAsync(async (req, res) => {
   const { email, type } = req.body;
 
+  if (!email) {
+    return ApiResponse.error(res, 'Email là bắt buộc', 400);
+  }
+
   const user = await User.findByEmailWithPassword(email);
   if (!user) {
     return ApiResponse.success(res, null, 'Mã mới đã được gửi nếu email tồn tại');
@@ -176,7 +208,11 @@ const resendCode = catchAsync(async (req, res) => {
     await User.setResetCode(user.id, code, expires);
     await sendPasswordResetEmail(email, code);
   } else {
-    await User.setResetCode(user.id, code, expires);
+    if (user.is_verified) {
+      return ApiResponse.error(res, 'Tài khoản đã được xác thực', 400);
+    }
+
+    await User.setVerificationCode(user.id, code, expires);
     await sendVerificationEmail(email, code);
   }
 
@@ -189,12 +225,24 @@ const resendCode = catchAsync(async (req, res) => {
 const changePassword = catchAsync(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
+  if (!currentPassword || !newPassword) {
+    return ApiResponse.error(res, 'Mật khẩu hiện tại và mật khẩu mới là bắt buộc', 400);
+  }
+
+  if (String(newPassword).length < 6) {
+    return ApiResponse.error(res, 'Mật khẩu mới phải có ít nhất 6 ký tự', 400);
+  }
+
+  if (currentPassword === newPassword) {
+    return ApiResponse.error(res, 'Mật khẩu mới phải khác mật khẩu hiện tại', 400);
+  }
+
   const userRow = await User.findByIdWithPassword(req.user.id);
   if (!userRow) {
     return ApiResponse.notFound(res, 'Người dùng không tồn tại');
   }
 
-  const isMatch = await comparePassword(currentPassword, userRow.password);
+  const isMatch = await comparePassword(currentPassword, userRow._password);
   if (!isMatch) {
     return ApiResponse.error(res, 'Mật khẩu hiện tại không đúng', 400);
   }

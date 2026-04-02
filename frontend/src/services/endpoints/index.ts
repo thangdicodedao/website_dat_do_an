@@ -1,4 +1,4 @@
-export { authAPI } from './auth';
+export { authAPI, getErrorMessage } from './auth';
 export { productAPI, categoryAPI, reviewAPI } from './product';
 export { cartAPI } from './cart';
 export { orderAPI } from './order';

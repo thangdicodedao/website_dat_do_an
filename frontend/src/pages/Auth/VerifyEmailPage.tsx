@@ -4,10 +4,14 @@ import { Mail, ArrowLeft } from 'lucide-react';
 import { Button } from '../../components/common';
 import { authAPI } from '../../services';
 import { useToast } from '../../components/common/Toast';
+import { useAppDispatch } from '../../hooks';
+import { setUser } from '../../store/slices/authSlice';
+import { resetAuthCleared } from '../../services/api';
 
 export default function VerifyEmailPage() {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { showToast } = useToast();
   const email = (location.state as { email?: string })?.email || '';
 
@@ -24,7 +28,9 @@ export default function VerifyEmailPage() {
 
     setLoading(true);
     try {
-      await authAPI.verifyEmail({ email, code: verificationCode });
+      const { user } = await authAPI.verifyEmail({ email, code: verificationCode });
+      dispatch(setUser(user));
+      resetAuthCleared();
       showToast('success', 'Xác thực email thành công!');
       navigate('/');
     } catch (error: any) {

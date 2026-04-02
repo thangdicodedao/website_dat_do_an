@@ -96,7 +96,10 @@ const getAdminStats = catchAsync(async (req, res) => {
 // @route   PUT /api/users/profile
 // @access  Private
 const updateProfile = catchAsync(async (req, res) => {
-  const user = await User.update(req.user.id, req.body);
+  const { name, phone, avatar, address } = req.body;
+  const payload = { name, phone, avatar, address };
+
+  const user = await User.update(req.user.id, payload);
   if (!user) {
     return ApiResponse.notFound(res, 'Người dùng không tồn tại');
   }
