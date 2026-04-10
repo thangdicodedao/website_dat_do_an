@@ -41,12 +41,21 @@ export interface ForgotPasswordData {
 }
 
 // Product types
+export interface ProductVariant {
+  id: string;
+  name: string;
+  originalPrice: number;
+  salePrice: number;
+  quantity: number;
+}
+
 export interface Product {
   id: string;
   name: string;
   description: string;
   price: number;
   originalPrice?: number;
+  variants?: ProductVariant[];
   images: string[];
   video?: string;
   categoryId: string;

@@ -1,12 +1,44 @@
-import { mockApi } from '../api';
-import { Product, ProductsQuery, ProductsResponse, Category, Review, CreateReviewData } from '../../types';
-import { products, categories, reviews as allReviews } from '../../data';
+import api, { mockApi } from '../api';
+import { Product, ProductVariant, ProductsQuery, ProductsResponse, Category, Review, CreateReviewData } from '../../types';
+import { products, reviews as allReviews } from '../../data';
+
+const ensureProductVariants = (product: Product): Product => {
+  const fallbackVariant: ProductVariant = {
+    id: `${product.id}-default`,
+    name: 'Mặc định',
+    originalPrice: product.originalPrice ?? product.price,
+    salePrice: product.price,
+    quantity: product.isAvailable ? 100 : 0,
+  };
+
+  const variants = (product.variants && product.variants.length > 0
+    ? product.variants
+    : [fallbackVariant]
+  ).map((variant, index) => ({
+    ...variant,
+    id: variant.id || `${product.id}-variant-${index + 1}`,
+  }));
+
+  const salePrices = variants.map((variant) => variant.salePrice);
+  const originalPrices = variants.map((variant) => variant.originalPrice);
+  const minSalePrice = salePrices.length > 0 ? Math.min(...salePrices) : product.price;
+  const maxOriginalPrice = originalPrices.length > 0 ? Math.max(...originalPrices) : (product.originalPrice ?? minSalePrice);
+  const totalQuantity = variants.reduce((sum, variant) => sum + variant.quantity, 0);
+
+  return {
+    ...product,
+    variants,
+    price: minSalePrice,
+    originalPrice: maxOriginalPrice > minSalePrice ? maxOriginalPrice : undefined,
+    isAvailable: totalQuantity > 0 && product.isAvailable !== false,
+  };
+};
 
 export const productAPI = {
   getProducts: async (query?: ProductsQuery): Promise<ProductsResponse> => {
     await mockApi.delay(600);
 
-    let filteredProducts = [...products];
+    let filteredProducts = products.map(ensureProductVariants);
 
     // Filter by category
     if (query?.categoryId) {
@@ -80,18 +112,18 @@ export const productAPI = {
       throw new Error('Sản phẩm không tồn tại');
     }
 
-    return product;
+    return ensureProductVariants(product);
   },
 
   getFeaturedProducts: async (): Promise<Product[]> => {
     await mockApi.delay(400);
-    return products.filter(p => p.isFeatured);
+    return products.filter(p => p.isFeatured).map(ensureProductVariants);
   },
 
   getRecommendedProducts: async (productId?: string): Promise<Product[]> => {
     await mockApi.delay(400);
 
-    let filtered = products.filter(p => p.id !== productId);
+    let filtered = products.filter(p => p.id !== productId).map(ensureProductVariants);
 
     // Randomize and return 8 products
     return filtered
@@ -101,24 +133,24 @@ export const productAPI = {
 
   getNewProducts: async (): Promise<Product[]> => {
     await mockApi.delay(400);
-    return products.filter(p => p.isNew);
+    return products.filter(p => p.isNew).map(ensureProductVariants);
   },
 
   getProductsByCategory: async (categoryId: string): Promise<Product[]> => {
     await mockApi.delay(400);
-    return products.filter(p => p.categoryId === categoryId);
+    return products.filter(p => p.categoryId === categoryId).map(ensureProductVariants);
   },
 
   // Admin functions
   createProduct: async (product: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Promise<Product> => {
     await mockApi.delay(800);
 
-    const newProduct: Product = {
+    const newProduct: Product = ensureProductVariants({
       ...product,
       id: `prod-${Date.now()}`,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    };
+    });
 
     products.push(newProduct);
     return newProduct;
@@ -132,11 +164,11 @@ export const productAPI = {
       throw new Error('Sản phẩm không tồn tại');
     }
 
-    products[index] = {
+    products[index] = ensureProductVariants({
       ...products[index],
       ...updates,
       updatedAt: new Date().toISOString(),
-    };
+    });
 
     return products[index];
   },
@@ -155,66 +187,37 @@ export const productAPI = {
 
 export const categoryAPI = {
   getCategories: async (): Promise<Category[]> => {
-    await mockApi.delay(400);
-    return categories;
+    const response = await api.get('/categories');
+    return response.data.data.categories;
+  },
+
+  getAllCategories: async (): Promise<Category[]> => {
+    const response = await api.get('/categories/all');
+    return response.data.data.categories;
   },
 
   getCategoryById: async (id: string): Promise<Category> => {
-    await mockApi.delay(300);
-
-    const category = categories.find(c => c.id === id);
-    if (!category) {
-      throw new Error('Danh mục không tồn tại');
-    }
-
-    return category;
+    const response = await api.get(`/categories/${id}`);
+    return response.data.data.category;
   },
 
   getCategoryBySlug: async (slug: string): Promise<Category> => {
-    await mockApi.delay(300);
-
-    const category = categories.find(c => c.slug === slug);
-    if (!category) {
-      throw new Error('Danh mục không tồn tại');
-    }
-
-    return category;
+    const response = await api.get(`/categories/slug/${slug}`);
+    return response.data.data.category;
   },
 
-  // Admin functions
-  createCategory: async (category: Omit<Category, 'id'>): Promise<Category> => {
-    await mockApi.delay(600);
-
-    const newCategory: Category = {
-      ...category,
-      id: `cat-${Date.now()}`,
-    };
-
-    categories.push(newCategory);
-    return newCategory;
+  createCategory: async (data: Omit<Category, 'id'>): Promise<Category> => {
+    const response = await api.post('/categories', data);
+    return response.data.data.category;
   },
 
-  updateCategory: async (id: string, updates: Partial<Category>): Promise<Category> => {
-    await mockApi.delay(500);
-
-    const index = categories.findIndex(c => c.id === id);
-    if (index === -1) {
-      throw new Error('Danh mục không tồn tại');
-    }
-
-    categories[index] = { ...categories[index], ...updates };
-    return categories[index];
+  updateCategory: async (id: string, data: Partial<Category>): Promise<Category> => {
+    const response = await api.put(`/categories/${id}`, data);
+    return response.data.data.category;
   },
 
   deleteCategory: async (id: string): Promise<void> => {
-    await mockApi.delay(400);
-
-    const index = categories.findIndex(c => c.id === id);
-    if (index === -1) {
-      throw new Error('Danh mục không tồn tại');
-    }
-
-    categories.splice(index, 1);
+    await api.delete(`/categories/${id}`);
   },
 };
 

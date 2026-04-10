@@ -1,4 +1,4 @@
-const User = require('../models/User');
+const { User } = require('../models');
 const ApiResponse = require('../utils/ApiResponse');
 const { verifyAccessToken } = require('../utils/generateToken');
 
@@ -15,11 +15,11 @@ const protect = async (req, res, next) => {
 
   try {
     const decoded = verifyAccessToken(token);
-    const user = await User.findById(decoded.userId);
+    const user = await User.findByPk(decoded.userId);
     if (!user) {
       return ApiResponse.unauthorized(res, 'Tài khoản không tồn tại');
     }
-    req.user = user;
+    req.user = user.toSafeJSON();
     next();
   } catch (error) {
     if (error.name === 'TokenExpiredError') {

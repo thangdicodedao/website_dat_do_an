@@ -23,8 +23,14 @@ import {
   PrivacyPolicyPage,
   AdminDashboard,
   AdminProducts,
+  AdminProductEditPage,
+  AdminCategories,
   AdminOrders,
   AdminUsers,
+  AdminMessages,
+  AdminReviews,
+  AdminNotifications,
+  AdminSettings,
 } from './pages';
 import { useAppDispatch } from './hooks';
 import { checkAuth } from './store/slices/authSlice';
@@ -77,8 +83,15 @@ function AppContent() {
       <Route element={<AdminLayout />}>
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/products" element={<AdminProducts />} />
+        <Route path="/admin/products/new" element={<AdminProductEditPage />} />
+        <Route path="/admin/products/:id/edit" element={<AdminProductEditPage />} />
+        <Route path="/admin/categories" element={<AdminCategories />} />
         <Route path="/admin/orders" element={<AdminOrders />} />
         <Route path="/admin/users" element={<AdminUsers />} />
+        <Route path="/admin/messages" element={<AdminMessages />} />
+        <Route path="/admin/reviews" element={<AdminReviews />} />
+        <Route path="/admin/notifications" element={<AdminNotifications />} />
+        <Route path="/admin/settings" element={<AdminSettings />} />
       </Route>
 
       {/* Fallback */}

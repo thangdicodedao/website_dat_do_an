@@ -5,6 +5,7 @@ import { Button, Input } from '../../components/common';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { login, register } from '../../store/slices/authSlice';
 import { useToast } from '../../components/common/Toast';
+import { authAPI } from '../../services';
 
 export default function AuthPages() {
   const navigate = useNavigate();
@@ -16,8 +17,9 @@ export default function AuthPages() {
   const isLogin = location.pathname === '/login';
 
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem('rememberedEmail'));
   const [formData, setFormData] = useState({
-    email: '',
+    email: localStorage.getItem('rememberedEmail') || '',
     password: '',
     name: '',
     phone: '',
@@ -59,6 +61,12 @@ export default function AuthPages() {
 
     try {
       if (isLogin) {
+        if (rememberMe) {
+          localStorage.setItem('rememberedEmail', formData.email);
+        } else {
+          localStorage.removeItem('rememberedEmail');
+        }
+
         await dispatch(login({
           email: formData.email,
           password: formData.password,
@@ -76,7 +84,21 @@ export default function AuthPages() {
         navigate('/verify-email', { state: { email: formData.email } });
       }
     } catch (err: any) {
-      showToast('error', err.message || 'Có lỗi xảy ra');
+      const message = typeof err === 'string' ? err : (err?.message || 'Có lỗi xảy ra');
+
+      if (isLogin && message === 'Vui lòng xác thực email trước khi đăng nhập') {
+        try {
+          await authAPI.resendCode(formData.email);
+        } catch {
+          // Keep redirect behavior even if resend fails.
+        }
+
+        showToast('warning', 'Tài khoản chưa xác thực. Mã mới đã được gửi, vui lòng kiểm tra email.');
+        navigate('/verify-email', { state: { email: formData.email } });
+        return;
+      }
+
+      showToast('error', message);
     }
   };
 
@@ -149,10 +171,19 @@ export default function AuthPages() {
             </div>
 
             {isLogin && (
-              <div className="flex justify-end">
+              <div className="flex items-center justify-between mt-2">
+                <label className="flex items-center space-x-2 text-sm text-gray-600 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 text-red-500 border-gray-300 rounded focus:ring-red-500 focus:ring-2"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                  />
+                  <span>Ghi nhớ tài khoản</span>
+                </label>
                 <Link
                   to="/forgot-password"
-                  className="text-sm text-red-500 hover:text-red-600"
+                  className="text-sm text-red-500 hover:text-red-600 font-medium"
                 >
                   Quên mật khẩu?
                 </Link>

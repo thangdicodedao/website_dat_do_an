@@ -2,6 +2,11 @@ import api from '../api';
 import { User, AdminStats } from '../../types';
 
 export const userAPI = {
+  createUser: async (data: { email: string; password: string; name: string; phone: string; role?: 'user' | 'admin'; isVerified?: boolean; avatar?: string; address?: string }): Promise<User> => {
+    const response = await api.post('/users', data);
+    return response.data.data.user;
+  },
+
   getUsers: async (): Promise<User[]> => {
     const response = await api.get('/users');
     return response.data.data.users;

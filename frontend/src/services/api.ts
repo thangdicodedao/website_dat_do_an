@@ -13,6 +13,21 @@ const api: AxiosInstance = axios.create({
 // Track if auth has been cleared (prevents infinite redirect loops)
 let authCleared = false;
 
+const shouldSkipRefresh = (url?: string): boolean => {
+  if (!url) return false;
+
+  const authEndpoints = [
+    '/auth/login',
+    '/auth/register',
+    '/auth/verify-email',
+    '/auth/forgot-password',
+    '/auth/reset-password',
+    '/auth/resend-code',
+  ];
+
+  return authEndpoints.some((endpoint) => url.includes(endpoint));
+};
+
 // Request interceptor - Add auth token
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
@@ -34,9 +49,11 @@ api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    const requestUrl = originalRequest?.url;
+    const skipRefresh = shouldSkipRefresh(requestUrl);
 
     // Handle 401 - attempt token refresh
-    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry && !skipRefresh) {
       // If auth already cleared, don't refresh — just reject
       if (authCleared) {
         return Promise.reject(error);

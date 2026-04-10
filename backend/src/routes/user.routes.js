@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const {
+  createUser,
   getUsers,
   getUserById,
   updateUser,
@@ -15,6 +16,7 @@ const protect = require('../middleware/auth.middleware');
 const adminOnly = require('../middleware/admin.middleware');
 
 // Admin routes
+router.post('/', protect, adminOnly, createUser);
 router.get('/', protect, adminOnly, getUsers);
 router.get('/stats', protect, adminOnly, getAdminStats);
 // User profile route (must be before /:id)

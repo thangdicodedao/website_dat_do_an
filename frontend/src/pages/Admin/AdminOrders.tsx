@@ -34,10 +34,8 @@ export default function AdminOrders() {
 
   return (
     <>
-      <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 md:mb-6">Quản lý đơn hàng</h1>
-
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-        <div className="p-3 md:p-4 border-b">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="p-3 md:p-4 border-b border-gray-100">
           <div className="relative max-w-full sm:max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
@@ -51,8 +49,8 @@ export default function AdminOrders() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[800px]">
-            <thead className="bg-gray-50 sticky top-0 z-10">
+          <table className="w-full min-w-[800px] border-collapse">
+            <thead className="bg-gray-50 sticky top-0 z-10 border-y border-gray-100">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">Mã đơn</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap">Khách hàng</th>

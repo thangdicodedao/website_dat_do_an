@@ -1,27 +1,29 @@
-const mysql = require('mysql2/promise');
+const { Sequelize } = require('sequelize');
 
-const pool = mysql.createPool({
-  host: process.env.MYSQL_HOST,
-  port: parseInt(process.env.MYSQL_PORT) || 3306,
-  user: process.env.MYSQL_USER,
-  password: process.env.MYSQL_PASSWORD || '',
-  database: process.env.MYSQL_DATABASE,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 0,
-});
-
-const query = (sql, params) => pool.execute(sql, params);
-
-const getConnection = () => pool.getConnection();
+const sequelize = new Sequelize(
+  process.env.MYSQL_DATABASE,
+  process.env.MYSQL_USER,
+  process.env.MYSQL_PASSWORD,
+  {
+    host: process.env.MYSQL_HOST,
+    port: parseInt(process.env.MYSQL_PORT) || 3306,
+    dialect: 'mysql',
+    logging: false,
+    underscored: true,
+    underscoredAll: true,
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+    define: {
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_unicode_ci',
+    },
+  }
+);
 
 const connectDB = async () => {
-  // Test connection
-  const conn = await pool.getConnection();
+  await sequelize.authenticate();
   console.log(`✅ MySQL Connected: ${process.env.MYSQL_HOST}:${process.env.MYSQL_PORT}/${process.env.MYSQL_DATABASE}`);
-  conn.release();
 };
 
-module.exports = { pool, query, getConnection, connectDB };
+module.exports = { sequelize, connectDB };

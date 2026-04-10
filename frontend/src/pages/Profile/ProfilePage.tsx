@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { User as UserIcon, Package, Heart, Lock, MapPin, Plus, Trash2, Edit, Star, Check, Save, X, CreditCard, Clock } from 'lucide-react';
+import { User as UserIcon, Package, Heart, Lock, MapPin, Plus, Trash2, Edit, Check, Save, X, CreditCard, Clock } from 'lucide-react';
 import { Button, Input, ProfileSkeleton } from '../../components/common';
 import { useAppSelector, useAppDispatch } from '../../hooks';
 import { fetchOrders } from '../../store/slices/orderSlice';
@@ -399,7 +399,7 @@ export default function ProfilePage() {
                       </div>
                       <p className="text-sm text-gray-600">{address.address}</p>
                     </div>
-                    <div className="flex items-center gap-2 mt-4 pt-4 border-t">
+                    <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-300">
                       {!address.isDefault && (
                         <Button variant="outline" size="sm" onClick={() => handleSetDefaultAddress(address.id)}>
                           <Check className="w-4 h-4 mr-1" /> Đặt mặc định

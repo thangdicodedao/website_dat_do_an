@@ -4,6 +4,7 @@ import { Search, ShoppingCart, User, Menu, X, LogOut, Home, UtensilsCrossed, Che
 import { cn } from '../../utils';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { logout } from '../../store/slices/authSlice';
+import { fetchCategories } from '../../store/slices/categorySlice';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -18,6 +19,7 @@ export default function Header() {
 
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const { items } = useAppSelector((state) => state.cart);
+  const { categories } = useAppSelector((state) => state.categories);
   const isAdmin = String(user?.role || '').toLowerCase() === 'admin';
 
   // Click outside to close suggestions
@@ -41,6 +43,10 @@ export default function Header() {
     'Bánh mì',
     'Sinh tố',
   ];
+
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -72,14 +78,12 @@ export default function Header() {
     { label: 'Hỗ trợ', href: '/contact', hasDropdown: true },
   ];
 
-  const categories = [
+  const categoryLinks = [
     { label: 'Tất cả', href: '/products' },
-    { label: 'Món Chính', href: '/products?category=mon-chinh' },
-    { label: 'Món Ăn Vặt', href: '/products?category=mon-an-vat' },
-    { label: 'Đồ Uống', href: '/products?category=do-uong' },
-    { label: 'Cơm & Phở', href: '/products?category=com-pho' },
-    { label: 'Đồ Chay', href: '/products?category=do-chay' },
-    { label: 'Bánh & Tráng Miệng', href: '/products?category=banh-trang-mieng' },
+    ...categories.map((cat: any) => ({
+      label: cat.name,
+      href: `/products?category=${cat.slug}`,
+    })),
   ];
 
   const supportLinks = [
@@ -136,7 +140,7 @@ export default function Header() {
                           className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50"
                         >
                           {link.label === 'Sản phẩm'
-                            ? categories.map((cat) => (
+                            ? categoryLinks.map((cat) => (
                                 <Link
                                   key={cat.href}
                                   to={cat.href}

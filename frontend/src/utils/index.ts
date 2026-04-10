@@ -12,22 +12,34 @@ export function formatPrice(price: number): string {
   }).format(price);
 }
 
-export function formatDate(date: string | Date): string {
+const toValidDate = (value: string | Date | null | undefined): Date | null => {
+  if (!value) return null;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
+export function formatDate(date: string | Date | null | undefined): string {
+  const parsed = toValidDate(date);
+  if (!parsed) return '--';
+
   return new Intl.DateTimeFormat('vi-VN', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  }).format(new Date(date));
+  }).format(parsed);
 }
 
-export function formatDateShort(date: string | Date): string {
+export function formatDateShort(date: string | Date | null | undefined): string {
+  const parsed = toValidDate(date);
+  if (!parsed) return '--';
+
   return new Intl.DateTimeFormat('vi-VN', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
-  }).format(new Date(date));
+  }).format(parsed);
 }
 
 export function generateId(): string {
